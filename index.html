@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ServiceNow Interview Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f3f5;min-height:100vh;}
+input,select,button,textarea{font-family:inherit;}
+input[type=text],input[type=password],input[type=date]{width:100%;padding:9px 12px;font-size:14px;border:1px solid #8c9aaa;border-radius:5px;background:#fff;color:#1a2b3c;outline:none;}
+input:focus{border-color:#0066cc;box-shadow:0 0 0 2px rgba(0,102,204,.15);}
+.err-border{border-color:#c0392b!important;}
+.btn{padding:8px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;}
+.btn-primary{background:#0066cc;color:#fff;}
+.btn-outline{background:transparent;color:#0066cc;border:1px solid #0066cc;}
+.btn-success{background:#00875a;color:#fff;}
+.btn-full{width:100%;padding:10px;font-size:14px;}
+.card{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.field{margin-top:16px;}
+.field-label{font-size:13px;font-weight:600;color:#1a2b3c;display:block;margin-bottom:5px;}
+.err-msg{color:#c0392b;font-size:12px;margin-top:4px;}
+.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px;display:inline-block;}
+.info-bar{background:#f7f9fb;border-radius:6px;padding:9px 13px;font-size:13px;color:#6b7a8d;display:flex;gap:16px;margin-top:16px;}
+.role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6px;}
+.role-card{border:1px solid #d0d7de;border-radius:8px;padding:13px 10px;cursor:pointer;text-align:center;background:#fff;}
+.role-card.selected{border:2px solid #0066cc;background:#e8f0fe;}
+.role-name{font-weight:600;font-size:14px;margin-bottom:7px;color:#1a2b3c;}
+.role-card.selected .role-name{color:#0066cc;}
+.progress-bar{height:4px;background:#dde3ea;}
+.progress-fill{height:4px;background:#0066cc;transition:width .3s;}
+.navbar{background:#1c2b33;border-bottom:1px solid #2e4050;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;}
+.nav-divider{width:1px;height:20px;background:#2e4050;margin:0 14px;}
+.nav-subtitle{color:#8fa8bf;font-size:13px;}
+.nav-btn{background:transparent;border:1px solid #3d5a73;color:#8fa8bf;border-radius:6px;padding:6px 16px;font-size:13px;cursor:pointer;}
+.page-header{background:#0a2a3f;padding:18px 24px 20px;border-bottom:1px solid #0d3555;}
+.breadcrumb{font-size:11px;color:#5d8aa8;letter-spacing:.4px;margin-bottom:5px;}
+.page-title{font-size:20px;font-weight:600;color:#e8f0f7;}
+.page-sub{font-size:13px;color:#6b9ab8;margin-top:4px;}
+.inner{max-width:560px;margin:24px auto;padding:0 16px;}
+.inner-lg{max-width:640px;margin:24px auto;padding:0 16px 30px;}
+.inner-md{max-width:420px;margin:24px auto;padding:0 16px;}
+.inner-center{max-width:480px;margin:40px auto;padding:0 16px;text-align:center;}
+.hint{font-size:13px;color:#1a56db;border-left:3px solid #0066cc;background:#e8f0fe;border-radius:0 4px 4px 0;padding:8px 11px;margin-bottom:16px;}
+.test-subbar{background:#0a2a3f;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #0d3555;}
+.timer{font-size:17px;font-weight:700;background:rgba(0,0,0,.2);padding:4px 12px;border-radius:6px;font-variant-numeric:tabular-nums;}
+.q-text{font-size:15px;font-weight:600;margin-bottom:16px;line-height:1.6;color:#1a2b3c;}
+.option{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:6px;margin-bottom:8px;cursor:pointer;border:1px solid #d0d7de;background:#fff;font-size:14px;color:#1a2b3c;}
+.option.selected{border:2px solid #0066cc;background:#e8f0fe;font-weight:600;}
+.option input[type=radio]{width:15px;height:15px;accent-color:#0066cc;flex-shrink:0;}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.metric-card{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:12px 14px;}
+.metric-label{font-size:11px;font-weight:600;color:#6b7a8d;margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px;}
+.metric-val{font-size:20px;font-weight:700;color:#1a2b3c;}
+.ans-opt{font-size:13px;padding:6px 11px;border-radius:5px;margin-bottom:4px;}
+.ans-correct{background:#e3fcef;color:#00875a;font-weight:600;}
+.ans-wrong{background:#ffebe6;color:#c0392b;font-weight:600;}
+.ans-neutral{background:#f7f9fb;color:#6b7a8d;}
+.result-row{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:14px 18px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.success-circle{width:58px;height:58px;border-radius:50%;background:#e3fcef;border:2px solid #00875a;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;}
+.section-title{font-size:14px;font-weight:600;color:#1a2b3c;margin:0 0 12px;}
+.empty-state{text-align:center;color:#6b7a8d;font-size:14px;padding:32px;}
+.q-detail-card{margin-bottom:10px;border-radius:8px;padding:14px 18px;background:#fff;border:1px solid #d0d7de;border-left:4px solid;}
+.q-detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px;}
+.admin-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.back-btn{background:none;border:none;color:#0066cc;font-size:13px;cursor:pointer;font-weight:600;padding:0;margin-bottom:0;display:inline-block;}
+.export-panel{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:14px 16px;margin-bottom:14px;}
+.export-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.ai-panel{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:20px 22px;margin-bottom:16px;}
+.ai-panel-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ai-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#e8f0fe;color:#0052a3;}
+.ai-loading{display:flex;align-items:center;gap:10px;color:#6b7a8d;font-size:13px;}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:#0066cc;display:inline-block;animation:pulse 1.2s infinite;}
+.ai-dot:nth-child(2){animation-delay:.2s;}
+.ai-dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+.ai-section{margin-bottom:14px;}
+.ai-section-title{font-size:12px;font-weight:600;color:#0052a3;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.ai-text{font-size:13px;color:#1a2b3c;line-height:1.7;white-space:pre-line;}
+.loading-overlay{text-align:center;padding:40px;color:#6b7a8d;font-size:14px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var ADMIN_PASS = "admin123";
+var TOTAL_TIME = 20 * 60;
+var PASS_THRESHOLD = 60;
+
+var SN_INSTANCE = "https://shekharemp.service-now.com";
+var SN_TABLE = "u_interview_results";
+var SN_USER = "Interview";
+var SN_ENC = "MTQ1ODFAU2VydmljZW5vdw==";
+
+function getAuth() {
+  return "Basic " + btoa(SN_USER + ":" + atob(SN_ENC));
+}
+
+function snSave(entry) {
+  var body = JSON.stringify({
+    u_candidate_name: entry.name,
+    u_dob: entry.dob,
+    u_role: entry.role,
+    u_score: entry.score,
+    u_correct: entry.correct,
+    u_total: entry.total,
+    u_passed: entry.passed ? "true" : "false",
+    u_date: entry.date,
+    u_answers: JSON.stringify(entry.answers),
+    u_questions: JSON.stringify(entry.questions)
+  });
+  fetch(SN_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": getAuth()
+    },
+    body: body
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) { console.log("SN saved:", d.result && d.result.sys_id); })
+  .catch(function(err) { console.error("SN save error:", err); });
+}
+
+function snLoad(callback) {
+  var url = SN_URL + "?sysparm_limit=100&sysparm_order_by_desc=sys_created_at";
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Authorization": getAuth()
+    }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (!d.result) { callback([]); return; }
+    var list = d.result.map(function(r) {
+      var ans = {};
+      var qs = [];
+      try { ans = JSON.parse(r.u_answers || "{}"); } catch(e) {}
+      try { qs = JSON.parse(r.u_questions || "[]"); } catch(e) {}
+      return {
+        id: r.sys_id,
+        name: r.u_candidate_name || "",
+        dob: r.u_dob || "",
+        role: r.u_role || "",
+        score: parseInt(r.u_score, 10) || 0,
+        correct: parseInt(r.u_correct, 10) || 0,
+        total: parseInt(r.u_total, 10) || 0,
+        passed: r.u_passed === "true" || r.u_passed === true,
+        date: r.u_date || "",
+        answers: ans,
+        questions: qs
+      };
+    });
+    callback(list);
+  })
+  .catch(function(err) {
+    console.error("SN load error:", err);
+    callback([]);
+  });
+}
+
+function snDelete(sysId, callback) {
+  fetch(SN_URL + "/" + sysId, {
+    method: "DELETE",
+    headers: { "Authorization": getAuth() }
+  })
+  .then(function() { if (callback) { callback(); } })
+  .catch(function(err) { console.error("SN delete error:", err); if (callback) { callback(); } });
+}
+
+var roleBadgeColors = {
+  "TSE": { bg:"#e3fcef", color:"#00875a", border:"#abf5d1" },
+  "SR TSE": { bg:"#fffbeb", color:"#d97706", border:"#fde68a" },
+  "Staff TSE": { bg:"#ffebe6", color:"#c0392b", border:"#ffbdad" }
+};
+
+var questionBank = {
+  "TSE": [
+    { q:"Which HTML tag defines an unordered list?", opts:["ol","ul","li","list"], ans:1, topic:"HTML" },
+    { q:"Which CSS property changes text color?", opts:["font-color","text-color","color","foreground"], ans:2, topic:"HTML" },
+    { q:"What does HTML stand for?", opts:["Hyper Text Markup Language","High Tech Modern Language","Hyper Transfer Markup Language","Home Tool Markup Language"], ans:0, topic:"HTML" },
+    { q:"Which HTML attribute specifies alternate text for an image?", opts:["title","src","alt","href"], ans:2, topic:"HTML" },
+    { q:"How do you show Hello World in an alert box?", opts:["alertBox()","msg()","alert()","msgBox()"], ans:2, topic:"JavaScript" },
+    { q:"Which keyword declares a variable in JavaScript?", opts:["v","variable","int","var"], ans:3, topic:"JavaScript" },
+    { q:"Correct way to write a JavaScript array?", opts:["var a=(1,2,3)","var a=[1,2,3]","var a={1,2,3}","var a=1,2,3"], ans:1, topic:"JavaScript" },
+    { q:"Which SQL statement retrieves data?", opts:["GET","OPEN","SELECT","FETCH"], ans:2, topic:"SQL" },
+    { q:"Which SQL clause filters rows?", opts:["LIMIT","ORDER BY","WHERE","GROUP BY"], ans:2, topic:"SQL" },
+    { q:"What does SQL stand for?", opts:["Structured Query Language","Simple Query Logic","System Query Layer","Styled Query Language"], ans:0, topic:"SQL" }
+  ],
+  "SR TSE": [
+    { q:"Difference between id and class in HTML?", opts:["No difference","id is unique; class can be reused","class is unique; id can repeat","id is for CSS only"], ans:1, topic:"HTML" },
+    { q:"Which HTML5 element is used for navigation links?", opts:["nav","menu","section","header"], ans:0, topic:"HTML" },
+    { q:"Purpose of the meta charset tag?", opts:["Sets page title","Defines character encoding","Links a stylesheet","Creates a viewport"], ans:1, topic:"HTML" },
+    { q:"What does event.preventDefault() do?", opts:["Stops event bubbling","Removes an event listener","Prevents the default browser action","Cancels an async request"], ans:2, topic:"JavaScript" },
+    { q:"What is a closure in JavaScript?", opts:["A function with no return","A loop that closes itself","A function retaining access to its outer scope","A built-in error handler"], ans:2, topic:"JavaScript" },
+    { q:"What does this refer to in a regular function?", opts:["The global object or calling context","The function itself","The parent class","Always window"], ans:0, topic:"JavaScript" },
+    { q:"Which method removes the last element of an array?", opts:["shift()","splice()","pop()","delete()"], ans:2, topic:"JavaScript" },
+    { q:"Difference between INNER JOIN and LEFT JOIN?", opts:["No difference","LEFT JOIN returns all left rows including unmatched","INNER JOIN returns all rows","LEFT JOIN is faster"], ans:1, topic:"SQL" },
+    { q:"Which SQL function counts rows?", opts:["SUM()","TOTAL()","COUNT()","NUM()"], ans:2, topic:"SQL" },
+    { q:"What does GROUP BY do in SQL?", opts:["Sorts rows","Groups rows for aggregate functions","Filters duplicates","Joins tables"], ans:1, topic:"SQL" }
+  ],
+  "Staff TSE": [
+    { q:"Purpose of the defer attribute on a script tag?", opts:["Loads in a web worker","Delays execution until HTML is parsed","Makes script async","Prevents caching"], ans:1, topic:"HTML" },
+    { q:"How does the browser handle the Critical Rendering Path?", opts:["Executes JS first","Parses HTML to DOM to CSSOM to render tree to paint","Downloads all then renders","CSS ignored until JS loads"], ans:1, topic:"HTML" },
+    { q:"What is Shadow DOM used for?", opts:["Server-side rendering","Encapsulating styles in web components","Tracking DOM changes","Creating virtual nodes"], ans:1, topic:"HTML" },
+    { q:"Difference between null and undefined?", opts:["They are identical","null is intentional absence; undefined is uninitialized","undefined set by dev; null by engine","null is a string"], ans:1, topic:"JavaScript" },
+    { q:"Explain the JavaScript event loop.", opts:["Loops over arrays async","Manages call stack task queue and microtask queue","A for loop for DOM events","Runs only in Node.js"], ans:1, topic:"JavaScript" },
+    { q:"Difference between Promise.all and Promise.allSettled?", opts:["No difference","Promise.all rejects on first failure; allSettled waits for all","allSettled is faster","Different return types"], ans:1, topic:"JavaScript" },
+    { q:"What are JavaScript Generators used for?", opts:["Creating HTML elements","Functions that can pause and resume","Optimising SQL","Handling HTTP errors"], ans:1, topic:"JavaScript" },
+    { q:"What is a correlated subquery?", opts:["A subquery that runs once","A subquery referencing the outer query per row","A join alternative","A stored procedure"], ans:1, topic:"SQL" },
+    { q:"Difference between WHERE and HAVING?", opts:["No difference","WHERE filters before grouping; HAVING filters after","HAVING is faster","WHERE works only with JOINs"], ans:1, topic:"SQL" },
+    { q:"What does a database index do and its trade-off?", opts:["Encrypts data; slows reads","Speeds reads; uses more storage and slows writes","Compresses rows","Validates schema"], ans:1, topic:"SQL" }
+  ]
+};
+
+var state = {
+  screen: window.location.hash.replace("#","") === "admin" ? "adminLogin" : "welcome",
+  name: "",
+  dob: "",
+  role: "TSE",
+  questions: [],
+  answers: {},
+  timeLeft: TOTAL_TIME,
+  results: [],
+  adminPass: "",
+  adminError: "",
+  errors: {},
+  selectedResult: null,
+  lastEntry: null,
+  showCSV: false,
+  csvCopied: false,
+  apiKey: localStorage.getItem("sn_api_key") || "",
+  aiSummary: null,
+  aiLoading: false,
+  snLoading: false
+};
+
+var timer = null;
+var appClickHandler = null;
+
+function setState(patch) {
+  var k;
+  for (k in patch) {
+    state[k] = patch[k];
+  }
+  render();
+}
+
+function saveLocal(r) {
+  localStorage.setItem("sn_results", JSON.stringify(r));
+}
+
+function fmt(s) {
+  return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+}
+
+function roleBadge(role) {
+  var c = roleBadgeColors[role] || {};
+  return '<span class="tag" style="background:' + c.bg + ';color:' + c.color + ';border:1px solid ' + c.border + '">' + role + '</span>';
+}
+
+function topicTag(t) {
+  return '<span class="tag" style="background:#e8f0fe;color:#0052a3">' + t + '</span>';
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(function() {
+    if (state.timeLeft <= 1) {
+      clearInterval(timer);
+      submitTest();
+    } else {
+      setState({ timeLeft: state.timeLeft - 1 });
+    }
+  }, 1000);
+}
+
+function startTest() {
+  var e = {};
+  if (!state.name.trim()) { e.name = "Full name is required."; }
+  if (!state.dob) { e.dob = "Date of birth is required."; }
+  if (Object.keys(e).length) { setState({ errors: e }); return; }
+  setState({ errors: {}, questions: questionBank[state.role].slice(), answers: {}, timeLeft: TOTAL_TIME, screen: "test" });
+  startTimer();
+}
+
+function submitTest() {
+  clearInterval(timer);
+  var qs = state.questions;
+  var correct = 0;
+  var i;
+  for (i = 0; i < qs.length; i++) {
+    if (state.answers[i] === qs[i].ans) { correct++; }
+  }
+  var score = Math.round((correct / qs.length) * 100);
+  var entryDate = new Date().toLocaleString("en-GB");
+  var entry = {
+    id: String(Date.now()),
+    name: state.name,
+    dob: state.dob,
+    role: state.role,
+    score: score,
+    correct: correct,
+    total: qs.length,
+    passed: score >= PASS_THRESHOLD,
+    date: entryDate,
+    answers: Object.assign({}, state.answers),
+    questions: qs
+  };
+  snSave(entry);
+  setState({ screen: "done", aiSummary: null, aiLoading: false, lastEntry: entry });
+}
+
+function adminLogin() {
+  if (state.adminPass === ADMIN_PASS) {
+    setState({ adminError: "", screen: "admin", snLoading: true, results: [] });
+    snLoad(function(list) {
+      setState({ results: list, snLoading: false });
+    });
+  } else {
+    setState({ adminError: "Incorrect passcode. Please try again." });
+  }
+}
+
+function deleteResult(idx) {
+  if (!confirm("Remove this submission?")) { return; }
+  var entry = state.results[idx];
+  var updated = state.results.filter(function(r, i) { return i !== idx; });
+  setState({ results: updated });
+  if (entry && entry.id) {
+    snDelete(entry.id, null);
+  }
+}
+
+function clearAll() {
+  if (!confirm("Remove ALL submissions? This cannot be undone.")) { return; }
+  var i;
+  for (i = 0; i < state.results.length; i++) {
+    if (state.results[i] && state.results[i].id) {
+      snDelete(state.results[i].id, null);
+    }
+  }
+  setState({ results: [] });
+}
+
+function getCSV() {
+  var headers = ["Name","DOB","Role","Score","Correct","Total","Passed","Date"];
+  var rows = state.results.map(function(r) {
+    return ['"' + r.name + '"','"' + r.dob + '"','"' + r.role + '"',r.score + "%",r.correct,r.total,r.passed ? "Yes" : "No",'"' + r.date + '"'].join(",");
+  });
+  return [headers.join(",")].concat(rows).join("\n");
+}
+
+function downloadCSV() {
+  if (!state.results.length) { return; }
+  var b64 = btoa(unescape(encodeURIComponent(getCSV())));
+  var a = document.createElement("a");
+  a.href = "data:text/csv;base64," + b64;
+  a.download = "interview_results.csv";
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() { document.body.removeChild(a); }, 500);
+}
+
+function sendCandidateEmail() {
+  var cr = state.selectedResult;
+  if (!cr) { return; }
+  var subject = encodeURIComponent("Interview Assessment Report - " + cr.name);
+  var body = encodeURIComponent(
+    "Hi,\n\nPlease find below the assessment results for " + cr.name + ":\n\n" +
+    "Name: " + cr.name + "\n" +
+    "Date of Birth: " + (cr.dob || "N/A") + "\n" +
+    "Role: " + cr.role + "\n" +
+    "Score: " + cr.score + "% (" + cr.correct + "/" + cr.total + " correct)\n" +
+    "Result: " + (cr.passed ? "PASSED" : "FAILED") + "\n" +
+    "Date: " + cr.date + "\n\n" +
+    "Best regards,\nServiceNow HR Portal"
+  );
+  window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+}
+
+function copyCSV() {
+  navigator.clipboard.writeText(getCSV()).then(function() {
+    setState({ csvCopied: true });
+    setTimeout(function() { setState({ csvCopied: false }); }, 2000);
+  });
+}
+
+function generatePDF(entry) {
+  if (!window.jspdf) { return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  var pageW = 210;
+  var margin = 16;
+  var contentW = pageW - margin * 2;
+  var y = 0;
+
+  function checkY(needed) {
+    if (y + needed > 275) { doc.addPage(); y = 16; }
+  }
+
+  doc.setFillColor(28, 43, 51);
+  doc.rect(0, 0, pageW, 22, "F");
+  doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
+  doc.text("servicenow", margin, 14);
+  doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(143, 168, 191);
+  doc.text("Interview Assessment Report", margin + 50, 14);
+  y = 30;
+
+  doc.setFontSize(18); doc.setFont("helvetica", "bold"); doc.setTextColor(10, 42, 63);
+  doc.text("Candidate Assessment Report", margin, y);
+  y += 8;
+  doc.setDrawColor(0, 102, 204); doc.setLineWidth(0.8);
+  doc.line(margin, y, pageW - margin, y);
+  y += 8;
+
+  doc.setFillColor(240, 243, 245);
+  doc.roundedRect(margin, y, contentW, 30, 3, 3, "F");
+  var col1 = margin + 5;
+  var col2 = margin + contentW / 2;
+  doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(107, 122, 141);
+  doc.text("CANDIDATE NAME", col1, y + 7);
+  doc.text("ROLE", col2, y + 7);
+  doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(26, 43, 60);
+  doc.text(entry.name, col1, y + 14);
+  doc.text(entry.role, col2, y + 14);
+  doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(107, 122, 141);
+  doc.text("DATE OF BIRTH", col1, y + 21);
+  doc.text("SUBMISSION DATE", col2, y + 21);
+  doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(26, 43, 60);
+  doc.text(entry.dob || "N/A", col1, y + 28);
+  doc.text(entry.date || new Date().toLocaleString("en-GB"), col2, y + 28);
+  y += 38;
+
+  var cardW = (contentW - 8) / 3;
+  var scoreColor = entry.passed ? [0, 135, 90] : [192, 57, 43];
+  var scoreBg = entry.passed ? [227, 246, 239] : [255, 235, 230];
+
+  doc.setFillColor(227, 246, 239); doc.roundedRect(margin, y, cardW, 20, 2, 2, "F");
+  doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(0, 135, 90);
+  doc.text("SCORE", margin + cardW / 2, y + 7, { align: "center" });
+  doc.setFontSize(14); doc.text(entry.score + "%", margin + cardW / 2, y + 16, { align: "center" });
+
+  doc.setFillColor(232, 240, 254); doc.roundedRect(margin + cardW + 4, y, cardW, 20, 2, 2, "F");
+  doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(0, 102, 204);
+  doc.text("CORRECT", margin + cardW + 4 + cardW / 2, y + 7, { align: "center" });
+  doc.setFontSize(14); doc.text(entry.correct + "/" + entry.total, margin + cardW + 4 + cardW / 2, y + 16, { align: "center" });
+
+  doc.setFillColor(scoreBg[0], scoreBg[1], scoreBg[2]);
+  doc.roundedRect(margin + cardW * 2 + 8, y, cardW, 20, 2, 2, "F");
+  doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+  doc.text("RESULT", margin + cardW * 2 + 8 + cardW / 2, y + 7, { align: "center" });
+  doc.setFontSize(14); doc.text(entry.passed ? "PASSED" : "FAILED", margin + cardW * 2 + 8 + cardW / 2, y + 16, { align: "center" });
+  y += 28;
+
+  var topicStats = {};
+  var qi;
+  for (qi = 0; qi < entry.questions.length; qi++) {
+    var tq = entry.questions[qi];
+    if (!topicStats[tq.topic]) { topicStats[tq.topic] = { correct: 0, total: 0 }; }
+    topicStats[tq.topic].total++;
+    if (entry.answers[qi] === tq.ans) { topicStats[tq.topic].correct++; }
+  }
+  var topics = Object.keys(topicStats);
+  doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(10, 42, 63);
+  doc.text("Performance by Category", margin, y);
+  y += 6;
+  var catW = (contentW - (topics.length - 1) * 4) / topics.length;
+  var ti;
+  for (ti = 0; ti < topics.length; ti++) {
+    var topic = topics[ti];
+    var ts = topicStats[topic];
+    var pct = Math.round((ts.correct / ts.total) * 100);
+    var tcx = margin + ti * (catW + 4);
+    var tr, tg, tb, bgr, bgg, bgb;
+    if (pct >= 70) { tr = 0; tg = 135; tb = 90; bgr = 227; bgg = 246; bgb = 239; }
+    else if (pct >= 40) { tr = 217; tg = 119; tb = 6; bgr = 255; bgg = 251; bgb = 235; }
+    else { tr = 192; tg = 57; tb = 43; bgr = 255; bgg = 235; bgb = 230; }
+    doc.setFillColor(bgr, bgg, bgb);
+    doc.roundedRect(tcx, y, catW, 24, 2, 2, "F");
+    doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(tr, tg, tb);
+    doc.text(topic.toUpperCase(), tcx + catW / 2, y + 7, { align: "center" });
+    doc.setFontSize(13); doc.text(ts.correct + "/" + ts.total, tcx + catW / 2, y + 16, { align: "center" });
+    doc.setFontSize(8); doc.setFont("helvetica", "normal");
+    doc.text(pct + "% correct", tcx + catW / 2, y + 22, { align: "center" });
+    doc.setFillColor(200, 200, 200); doc.roundedRect(tcx + 4, y + 24, catW - 8, 2, 1, 1, "F");
+    doc.setFillColor(tr, tg, tb); doc.roundedRect(tcx + 4, y + 24, (catW - 8) * (pct / 100), 2, 1, 1, "F");
+  }
+  y += 34;
+
+  checkY(10);
+  doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(10, 42, 63);
+  doc.text("Question Breakdown", margin, y);
+  y += 6;
+
+  var ri;
+  for (ri = 0; ri < entry.questions.length; ri++) {
+    var rq = entry.questions[ri];
+    var isCorrect = entry.answers[ri] === rq.ans;
+    checkY(14);
+    doc.setFillColor(isCorrect ? 227 : 255, isCorrect ? 246 : 235, isCorrect ? 239 : 230);
+    doc.roundedRect(margin, y, contentW, 8, 1, 1, "F");
+    doc.setFontSize(8); doc.setFont("helvetica", "bold");
+    doc.setTextColor(isCorrect ? 0 : 192, isCorrect ? 135 : 57, isCorrect ? 90 : 43);
+    doc.text((isCorrect ? "CORRECT" : "INCORRECT") + "  Q" + (ri + 1) + " [" + rq.topic + "]", margin + 3, y + 5.5);
+    y += 10;
+    var qLines = doc.splitTextToSize(rq.q, contentW);
+    checkY(qLines.length * 4 + 4);
+    doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(26, 43, 60);
+    doc.text(qLines, margin, y);
+    y += qLines.length * 4 + 3;
+    var oi;
+    for (oi = 0; oi < rq.opts.length; oi++) {
+      var opt = rq.opts[oi];
+      var isAns = oi === rq.ans;
+      var isSel = entry.answers[ri] === oi;
+      checkY(7);
+      if (isAns) {
+        doc.setFillColor(227, 246, 239);
+        doc.roundedRect(margin, y - 3, contentW, 6, 1, 1, "F");
+        doc.setTextColor(0, 135, 90);
+      } else if (isSel) {
+        doc.setFillColor(255, 235, 230);
+        doc.roundedRect(margin, y - 3, contentW, 6, 1, 1, "F");
+        doc.setTextColor(192, 57, 43);
+      } else {
+        doc.setTextColor(107, 122, 141);
+      }
+      doc.setFontSize(8); doc.setFont("helvetica", isAns || isSel ? "bold" : "normal");
+      var prefix = isAns ? "CORRECT: " : isSel ? "YOUR ANSWER: " : "  ";
+      var optLines = doc.splitTextToSize(prefix + opt, contentW - 6);
+      doc.text(optLines, margin + 3, y);
+      y += optLines.length * 4 + 2;
+    }
+    y += 4;
+  }
+
+  var pageCount = doc.internal.getNumberOfPages();
+  var pi;
+  for (pi = 1; pi <= pageCount; pi++) {
+    doc.setPage(pi);
+    doc.setFillColor(28, 43, 51);
+    doc.rect(0, 287, pageW, 10, "F");
+    doc.setFontSize(7); doc.setFont("helvetica", "normal"); doc.setTextColor(143, 168, 191);
+    doc.text("ServiceNow Interview Portal - Confidential", margin, 293);
+    doc.text("Page " + pi + " of " + pageCount, pageW - margin, 293, { align: "right" });
+  }
+  doc.save(entry.name.replace(/\s+/g, "_") + "_Assessment_Report.pdf");
+}
+
+function generateAISummary(entry) {
+  if (!entry) { return; }
+  state.aiLoading = true;
+  state.aiSummary = null;
+  render();
+  var wrongQs = entry.questions.filter(function(q, i) { return entry.answers[i] !== q.ans; });
+  var correctQs = entry.questions.filter(function(q, i) { return entry.answers[i] === q.ans; });
+  var prompt = "You are an expert technical interviewer. A candidate completed an interview assessment.\n\n" +
+    "Candidate: " + entry.name + "\nRole: " + entry.role + "\nScore: " + entry.score + "% (" + entry.correct + "/" + entry.total + " correct)\nResult: " + (entry.passed ? "PASSED" : "FAILED") + "\n\n" +
+    "CORRECTLY answered:\n" + (correctQs.length ? correctQs.map(function(q) { return "- [" + q.topic + "] " + q.q; }).join("\n") : "None") + "\n\n" +
+    "INCORRECTLY answered:\n" + (wrongQs.length ? wrongQs.map(function(q) { return "- [" + q.topic + "] " + q.q + "\n  Correct answer: " + q.opts[q.ans]; }).join("\n") : "None") + "\n\n" +
+    "Provide a concise assessment with exactly these three sections:\n" +
+    "1. OVERALL SUMMARY: 2-3 sentences.\n" +
+    "2. STRENGTHS: Bullet points.\n" +
+    "3. AREAS TO IMPROVE: Bullet points with guidance.\n" +
+    "Use plain text only, no markdown.";
+  fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + state.apiKey },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      max_tokens: 600,
+      messages: [
+        { role: "system", content: "You are an expert technical interviewer." },
+        { role: "user", content: prompt }
+      ]
+    })
+  })
+  .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+  .then(function(res) {
+    if (!res.ok) {
+      var msg = (res.data.error && res.data.error.message) ? res.data.error.message : "API error";
+      throw new Error(msg);
+    }
+    var text = "";
+    if (res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
+      text = res.data.choices[0].message.content || "";
+    }
+    if (!text) { throw new Error("Empty response"); }
+    state.aiLoading = false;
+    state.aiSummary = parseSummary(text);
+    render();
+  })
+  .catch(function(err) {
+    state.aiLoading = false;
+    state.aiSummary = { error: true, message: err.message || "Network error." };
+    render();
+  });
+}
+
+function parseSummary(text) {
+  var s1 = text.indexOf("OVERALL SUMMARY:");
+  var s2 = text.indexOf("STRENGTHS:");
+  var s3 = text.indexOf("AREAS TO IMPROVE:");
+  var overall = "";
+  var strengths = "";
+  var improve = "";
+  if (s1 !== -1 && s2 !== -1) { overall = text.substring(s1 + 16, s2).trim(); }
+  if (s2 !== -1 && s3 !== -1) { strengths = text.substring(s2 + 10, s3).trim(); }
+  if (s3 !== -1) { improve = text.substring(s3 + 17).trim(); }
+  if (!overall) { overall = text; }
+  return { overall: overall, strengths: strengths, improve: improve };
+}
+
+function aiPanelHTML() {
+  var hdr = '<div class="ai-panel-header">' +
+    '<span style="font-size:16px;">&#129302;</span>' +
+    '<span style="font-size:14px;font-weight:600;color:#1a2b3c;">AI Performance Summary</span>' +
+    '<span class="ai-badge">Powered by Groq</span>' +
+    '</div>';
+  var keyInput = '<div style="margin-top:12px;border-top:1px solid #e0e0e0;padding-top:12px;">' +
+    '<label style="font-size:12px;font-weight:600;color:#1a2b3c;display:block;margin-bottom:5px;">' + (state.apiKey ? "Update Groq API key" : "Enter Groq API key") + '</label>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<input type="password" id="inp-groq-key" placeholder="gsk_..." style="flex:1;padding:8px 11px;font-size:13px;border:1px solid #8c9aaa;border-radius:5px;outline:none;"/>' +
+    '<button class="btn btn-primary" style="font-size:12px;padding:8px 14px;white-space:nowrap;" data-action="update-api-key">Save &amp; Generate</button>' +
+    '</div>' +
+    '<p style="font-size:11px;color:#6b7a8d;margin-top:6px;">Free - no credit card. Get key at <strong>console.groq.com</strong></p>' +
+    '</div>';
+  if (state.aiLoading) {
+    return '<div class="ai-panel">' + hdr + '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Generating summary...</span></div>' + keyInput + '</div>';
+  }
+  if (state.aiSummary && state.aiSummary.error) {
+    return '<div class="ai-panel">' + hdr +
+      '<p style="font-size:13px;color:#c0392b;margin-bottom:8px;">&#9888; ' + (state.aiSummary.message || "Could not generate summary.") + '</p>' +
+      '<p style="font-size:12px;color:#6b7a8d;margin-bottom:10px;">Make sure your key starts with <strong>gsk_</strong>. Get a free key at <strong>console.groq.com</strong></p>' +
+      keyInput + '</div>';
+  }
+  if (state.aiSummary && !state.aiSummary.error) {
+    var s = state.aiSummary;
+    return '<div class="ai-panel">' + hdr +
+      (s.overall ? '<div class="ai-section"><div class="ai-section-title">Overall Summary</div><p class="ai-text">' + s.overall + '</p></div>' : '') +
+      (s.strengths ? '<div class="ai-section"><div class="ai-section-title">&#10003; Strengths</div><p class="ai-text">' + s.strengths + '</p></div>' : '') +
+      (s.improve ? '<div class="ai-section"><div class="ai-section-title">&#128218; Areas to Improve</div><p class="ai-text">' + s.improve + '</p></div>' : '') +
+      keyInput + '</div>';
+  }
+  return '<div class="ai-panel">' + hdr +
+    '<p style="font-size:13px;color:#6b7a8d;margin-bottom:10px;">Enter your Groq API key to generate a free AI performance summary.</p>' +
+    keyInput + '</div>';
+}
+
+function navbarHTML() {
+  return '<div class="navbar">' +
+    '<div style="display:flex;align-items:center;">' +
+    '<svg viewBox="0 0 220 44" width="150" height="28" xmlns="http://www.w3.org/2000/svg">' +
+    '<text x="0" y="34" font-family="Arial Black,Arial,sans-serif" font-size="32" font-weight="900" fill="#fff" letter-spacing="-1">servicenow</text>' +
+    '<ellipse cx="197" cy="10" rx="7" ry="7" fill="#81d742"/>' +
+    '<ellipse cx="197" cy="15" rx="3" ry="2.5" fill="#81d742"/>' +
+    '<circle cx="193" cy="17" r="2" fill="#81d742"/>' +
+    '</svg>' +
+    '<div class="nav-divider"></div>' +
+    '<span class="nav-subtitle">Interview Portal</span>' +
+    '</div>' +
+    '<button class="nav-btn" data-action="goto-admin">&#128274; Admin</button>' +
+    '</div>';
+}
+
+function pageHeaderHTML(title, sub, bc) {
+  return '<div class="page-header">' +
+    (bc ? '<p class="breadcrumb">' + bc + '</p>' : '') +
+    '<h1 class="page-title">' + title + '</h1>' +
+    (sub ? '<p class="page-sub">' + sub + '</p>' : '') +
+    '</div>';
+}
+
+function welcomeHTML() {
+  var e = state.errors;
+  var roleCards = Object.keys(questionBank).map(function(r) {
+    return '<div class="role-card ' + (state.role === r ? 'selected' : '') + '" data-action="select-role" data-role="' + r + '">' +
+      '<div class="role-name">' + r + '</div>' + roleBadge(r) + '</div>';
+  }).join("");
+  return navbarHTML() +
+    pageHeaderHTML("Candidate Assessment", "Fill in your details and start the assessment.", "HR Portal / Assessment") +
+    '<div class="inner"><div class="card">' +
+    '<div class="hint">Fill in all required fields and select your role before starting.</div>' +
+    '<label class="field-label">Full name <span style="color:#c0392b">*</span></label>' +
+    '<input type="text" id="inp-name" placeholder="e.g. Sarah Ahmed" value="' + state.name + '" class="' + (e.name ? 'err-border' : '') + '"/>' +
+    (e.name ? '<p class="err-msg">&#9888; ' + e.name + '</p>' : '') +
+    '<div class="field">' +
+    '<label class="field-label">Date of birth <span style="color:#c0392b">*</span></label>' +
+    '<input type="date" id="inp-dob" value="' + state.dob + '" max="' + new Date().toISOString().split("T")[0] + '" class="' + (e.dob ? 'err-border' : '') + '"/>' +
+    (e.dob ? '<p class="err-msg">&#9888; ' + e.dob + '</p>' : '') +
+    '</div>' +
+    '<div class="field">' +
+    '<label class="field-label">Role applying for</label>' +
+    '<div class="role-grid">' + roleCards + '</div>' +
+    '</div>' +
+    '<div class="info-bar"><span>&#128203; 10 questions</span><span>&#128187; JavaScript, HTML &amp; SQL</span></div>' +
+    '<button class="btn btn-primary btn-full" style="margin-top:16px;" data-action="start-test">Start assessment</button>' +
+    '</div></div>';
+}
+
+function adminLoginHTML() {
+  var mode = window.location.hash.replace("#", "");
+  return navbarHTML() +
+    pageHeaderHTML("Admin Access", "Enter your passcode to access the results dashboard.", "HR Portal / Admin") +
+    '<div class="inner-md"><div class="card">' +
+    '<label class="field-label">Passcode</label>' +
+    '<input type="password" id="inp-pass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" value="' + state.adminPass + '" class="' + (state.adminError ? 'err-border' : '') + '"/>' +
+    (state.adminError ? '<p class="err-msg">&#9888; ' + state.adminError + '</p>' : '') +
+    '<div style="display:flex;gap:8px;margin-top:16px;">' +
+    '<button class="btn btn-primary" data-action="admin-login">Login</button>' +
+    (mode !== "admin" ? '<button class="btn btn-outline" data-action="goto-welcome">Back</button>' : '') +
+    '</div>' +
+    '</div></div>';
+}
+
+function testHTML() {
+  var low = state.timeLeft < 60;
+  var answered = Object.keys(state.answers).length;
+  var total = state.questions.length;
+  var pctVal = Math.round((answered / (total || 1)) * 100);
+  var qCards = state.questions.map(function(q, idx) {
+    var sel = state.answers[idx];
+    var opts = q.opts.map(function(opt, i) {
+      var isSel = sel === i;
+      return '<label class="option ' + (isSel ? 'selected' : '') + '" data-action="select-answer" data-qidx="' + idx + '" data-aidx="' + i + '">' +
+        '<input type="radio" name="q' + idx + '" ' + (isSel ? 'checked' : '') + ' onclick="return false;" readonly/>' +
+        '<span>' + opt + '</span></label>';
+    }).join("");
+    return '<div class="card" style="margin-bottom:14px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+      '<span style="font-size:11px;font-weight:600;color:#6b7a8d;text-transform:uppercase;letter-spacing:.8px;">Question ' + (idx + 1) + ' of ' + total + '</span>' +
+      topicTag(q.topic) +
+      '</div>' +
+      '<p class="q-text">' + q.q + '</p>' + opts +
+      '</div>';
+  }).join("");
+  return navbarHTML() +
+    '<div class="test-subbar">' +
+    '<div style="display:flex;align-items:center;gap:10px;">' +
+    '<span style="color:#8fa8bf;font-size:13px;">' + state.name + '</span>' + roleBadge(state.role) +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;">' +
+    '<span style="font-size:12px;color:#6b9ab8;">Time remaining</span>' +
+    '<span class="timer" style="color:' + (low ? '#ff6b6b' : '#81d742') + ';">' + fmt(state.timeLeft) + '</span>' +
+    '</div>' +
+    '</div>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + pctVal + '%;"></div></div>' +
+    '<div class="inner-lg">' +
+    '<p style="font-size:13px;color:#6b7a8d;margin-bottom:14px;font-weight:600;">' + answered + ' of ' + total + ' answered</p>' +
+    qCards +
+    '<div style="display:flex;justify-content:flex-end;margin-top:8px;">' +
+    '<button class="btn btn-success" style="padding:11px 28px;font-size:14px;" data-action="submit-test">Submit assessment</button>' +
+    '</div>' +
+    '</div>';
+}
+
+function doneHTML() {
+  return navbarHTML() +
+    pageHeaderHTML("Assessment Submitted", "", "HR Portal / Assessment") +
+    '<div class="inner-center">' +
+    '<div class="card">' +
+    '<div class="success-circle">&#10003;</div>' +
+    '<h2 style="font-size:18px;font-weight:600;color:#1a2b3c;margin-bottom:10px;">Thank you, ' + state.name + '!</h2>' +
+    '<p style="color:#6b7a8d;font-size:14px;line-height:1.7;">Your assessment has been submitted successfully. A member of our team will review your responses and be in touch shortly.</p>' +
+    '</div>' +
+    '</div>';
+}
+
+function adminHTML() {
+  if (state.selectedResult) { return adminDetailHTML(state.selectedResult); }
+  var results = state.results;
+  var content = "";
+  if (state.snLoading) {
+    content = '<div class="loading-overlay">&#8987; Loading results from ServiceNow...</div>';
+  } else if (results.length === 0) {
+    content = '<div class="card empty-state">No submissions yet.</div>';
+  } else {
+    content = results.map(function(r, idx) {
+      return '<div style="display:flex;align-items:stretch;margin-bottom:8px;">' +
+        '<div class="result-row" style="flex:1;margin-bottom:0;border-radius:8px 0 0 8px;border-right:none;" data-action="view-result" data-idx="' + idx + '">' +
+        '<div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+        '<span style="font-weight:600;font-size:15px;color:#1a2b3c;">' + r.name + '</span>' + roleBadge(r.role) +
+        '</div>' +
+        '<span style="font-size:12px;color:#6b7a8d;">' + r.date + '</span>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+        '<p style="font-size:20px;font-weight:700;color:#1a2b3c;margin-bottom:5px;">' + r.score + '%</p>' +
+        '<span class="tag" style="background:' + (r.passed ? '#e3fcef' : '#ffebe6') + ';color:' + (r.passed ? '#00875a' : '#c0392b') + '">' + (r.passed ? 'Passed' : 'Failed') + '</span>' +
+        '</div>' +
+        '</div>' +
+        '<button class="btn" data-action="delete-result" data-idx="' + idx + '" style="padding:0 14px;border-radius:0 8px 8px 0;border:1px solid #d0d7de;border-left:none;background:#fff8f8;color:#c0392b;font-size:18px;" title="Remove">&#128465;</button>' +
+        '</div>';
+    }).join("");
+  }
+  return navbarHTML() +
+    pageHeaderHTML("Admin Dashboard", results.length + ' submission' + (results.length !== 1 ? 's' : ''), "HR Portal / Admin") +
+    '<div class="inner-lg">' +
+    '<div class="admin-topbar">' +
+    '<span class="section-title">Submissions</span>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+    '<button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" data-action="export-csv">&#8595; Export CSV</button>' +
+    '<button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" data-action="refresh-results">&#8635; Refresh</button>' +
+    '<button class="btn btn-outline" style="font-size:12px;padding:6px 12px;color:#c0392b;border-color:#c0392b;" data-action="clear-all">&#128465; Clear All</button>' +
+    '<button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" data-action="admin-logout">Logout</button>' +
+    '</div>' +
+    '</div>' +
+    (state.showCSV ?
+      '<div class="export-panel">' +
+      '<div class="export-panel-header">' +
+      '<p style="font-size:13px;font-weight:600;color:#1a2b3c;margin:0;">CSV - paste into Excel or Google Sheets</p>' +
+      '<button class="btn btn-primary" style="font-size:12px;padding:5px 14px;" data-action="copy-csv">' + (state.csvCopied ? '&#10003; Copied!' : 'Copy CSV') + '</button>' +
+      '</div>' +
+      '<textarea rows="5" readonly style="width:100%;font-family:monospace;font-size:11px;color:#5a5a5a;background:#f7f9fb;padding:8px;border:1px solid #d0d7de;border-radius:5px;">' + getCSV() + '</textarea>' +
+      '</div>' : '') +
+    content +
+    '</div>';
+}
+
+function adminDetailHTML(r) {
+  var topicStats = {};
+  var qi;
+  for (qi = 0; qi < r.questions.length; qi++) {
+    var qt = r.questions[qi];
+    if (!topicStats[qt.topic]) { topicStats[qt.topic] = { correct: 0, total: 0 }; }
+    topicStats[qt.topic].total++;
+    if (r.answers[qi] === qt.ans) { topicStats[qt.topic].correct++; }
+  }
+  var topicCards = Object.keys(topicStats).map(function(topic) {
+    var ts = topicStats[topic];
+    var pct = Math.round((ts.correct / ts.total) * 100);
+    var color = pct >= 70 ? "#00875a" : pct >= 40 ? "#d97706" : "#c0392b";
+    var bgColor = pct >= 70 ? "#e3fcef" : pct >= 40 ? "#fffbeb" : "#ffebe6";
+    return '<div style="background:' + bgColor + ';border:1px solid ' + color + ';border-radius:8px;padding:12px 16px;text-align:center;">' +
+      '<p style="font-size:11px;font-weight:600;color:' + color + ';text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">' + topic + '</p>' +
+      '<p style="font-size:22px;font-weight:700;color:' + color + ';margin-bottom:2px;">' + ts.correct + '/' + ts.total + '</p>' +
+      '<p style="font-size:11px;color:' + color + ';">' + pct + '% correct</p>' +
+      '<div style="margin-top:8px;height:4px;background:rgba(0,0,0,.1);border-radius:2px;">' +
+      '<div style="height:4px;width:' + pct + '%;background:' + color + ';border-radius:2px;"></div>' +
+      '</div>' +
+      '</div>';
+  }).join("");
+  var metrics = [["Score", r.score + "%"], ["Correct", r.correct + "/" + r.total], ["Role", r.role], ["Result", r.passed ? "Passed" : "Failed"]];
+  var mCards = metrics.map(function(m) {
+    var l = m[0];
+    var v = m[1];
+    return '<div class="metric-card">' +
+      '<p class="metric-label">' + l + '</p>' +
+      '<p class="metric-val" style="font-size:' + (l === "Role" ? "13" : "20") + 'px;color:' + (l === "Result" ? (r.passed ? "#00875a" : "#c0392b") : "#1a2b3c") + ';">' + v + '</p>' +
+      '</div>';
+  }).join("");
+  var qCards = r.questions.map(function(q, i) {
+    var correct = r.answers[i] === q.ans;
+    var opts = q.opts.map(function(opt, j) {
+      var isAns = j === q.ans;
+      var isSel = r.answers[i] === j;
+      return '<div class="ans-opt ' + (isAns ? 'ans-correct' : isSel ? 'ans-wrong' : 'ans-neutral') + '">' + (isAns ? '&#10003; ' : isSel ? '&#10007; ' : '  ') + opt + '</div>';
+    }).join("");
+    return '<div class="q-detail-card" style="border-left-color:' + (correct ? '#00875a' : '#c0392b') + ';margin-bottom:10px;">' +
+      '<div class="q-detail-header">' +
+      '<p style="font-size:14px;font-weight:600;color:#1a2b3c;line-height:1.5;flex:1;margin:0;">Q' + (i + 1) + ': ' + q.q + '</p>' +
+      topicTag(q.topic) +
+      '</div>' + opts +
+      '</div>';
+  }).join("");
+  return navbarHTML() +
+    pageHeaderHTML(r.name, r.role + ' - ' + r.date, "Admin Dashboard / Candidate Detail") +
+    '<div class="inner-lg">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">' +
+    '<button class="back-btn" data-action="back-to-admin">&#8592; Back to dashboard</button>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" data-action="send-candidate-email">&#9993; Send Email</button>' +
+    '<button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" data-action="download-report">&#128196; Download Report</button>' +
+    '</div>' +
+    '</div>' +
+    '<div class="metric-grid">' + mCards + '</div>' +
+    (r.dob ? '<div class="card" style="margin-bottom:14px;padding:11px 15px;font-size:13px;color:#6b7a8d;">Date of birth: <strong style="color:#1a2b3c;">' + r.dob + '</strong></div>' : '') +
+    '<p style="font-size:13px;font-weight:600;color:#1a2b3c;margin-bottom:10px;">Performance by category</p>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">' + topicCards + '</div>' +
+    aiPanelHTML() +
+    qCards +
+    '</div>';
+}
+
+function render() {
+  var html = "";
+  if (state.screen === "welcome") { html = welcomeHTML(); }
+  else if (state.screen === "adminLogin") { html = adminLoginHTML(); }
+  else if (state.screen === "test") { html = testHTML(); }
+  else if (state.screen === "done") { html = doneHTML(); }
+  else if (state.screen === "admin") { html = adminHTML(); }
+  document.getElementById("app").innerHTML = html;
+
+  var nameEl = document.getElementById("inp-name");
+  if (nameEl) { nameEl.addEventListener("input", function(e) { state.name = e.target.value; state.errors.name = ""; }); }
+  var dobEl = document.getElementById("inp-dob");
+  if (dobEl) { dobEl.addEventListener("input", function(e) { state.dob = e.target.value; state.errors.dob = ""; }); }
+  var passEl = document.getElementById("inp-pass");
+  if (passEl) {
+    passEl.addEventListener("input", function(e) { state.adminPass = e.target.value; });
+    passEl.addEventListener("keydown", function(e) { if (e.key === "Enter") { adminLogin(); } });
+  }
+
+  var appEl = document.getElementById("app");
+  if (appClickHandler) { appEl.removeEventListener("click", appClickHandler); }
+  appClickHandler = function(e) {
+    var el = e.target.closest("[data-action]");
+    if (!el) { return; }
+    var action = el.dataset.action;
+    if (action === "goto-admin") {
+      setState({ screen: "adminLogin" });
+    } else if (action === "goto-welcome") {
+      setState({ screen: "welcome" });
+    } else if (action === "start-test") {
+      startTest();
+    } else if (action === "admin-login") {
+      adminLogin();
+    } else if (action === "admin-logout") {
+      setState({ adminPass: "", screen: "adminLogin" });
+    } else if (action === "back-to-admin") {
+      setState({ selectedResult: null, aiSummary: null, aiLoading: false });
+    } else if (action === "submit-test") {
+      var answered = Object.keys(state.answers).length;
+      var total = state.questions.length;
+      var unanswered = total - answered;
+      var msg = "";
+      if (unanswered > 0) {
+        msg = "You have " + unanswered + " unanswered question" + (unanswered > 1 ? "s" : "") + " out of " + total + ".\n\nAre you sure you want to submit?";
+      } else {
+        msg = "You have answered all " + total + " questions.\n\nAre you sure you want to submit?";
+      }
+      if (confirm(msg)) { submitTest(); }
+    } else if (action === "select-role") {
+      setState({ role: el.dataset.role });
+    } else if (action === "select-answer") {
+      var a = Object.assign({}, state.answers);
+      a[parseInt(el.dataset.qidx, 10)] = parseInt(el.dataset.aidx, 10);
+      setState({ answers: a });
+    } else if (action === "view-result") {
+      var vr = state.results[parseInt(el.dataset.idx, 10)];
+      setState({ selectedResult: vr, aiSummary: null, aiLoading: false });
+      if (state.apiKey) { generateAISummary(vr); }
+    } else if (action === "delete-result") {
+      e.stopPropagation();
+      deleteResult(parseInt(el.dataset.idx, 10));
+    } else if (action === "clear-all") {
+      clearAll();
+    } else if (action === "export-csv") {
+      downloadCSV();
+      setState({ showCSV: !state.showCSV });
+    } else if (action === "copy-csv") {
+      copyCSV();
+    } else if (action === "refresh-results") {
+      setState({ snLoading: true, results: [] });
+      snLoad(function(list) { setState({ results: list, snLoading: false }); });
+    } else if (action === "download-report") {
+      var entry = state.selectedResult || state.lastEntry;
+      if (entry) { generatePDF(entry); }
+    } else if (action === "send-candidate-email") {
+      sendCandidateEmail();
+    } else if (action === "update-api-key") {
+      var keyEl = document.getElementById("inp-groq-key");
+      var newKey = keyEl ? keyEl.value.trim() : "";
+      if (newKey) {
+        state.apiKey = newKey;
+        state.aiSummary = null;
+        state.aiLoading = true;
+        localStorage.setItem("sn_api_key", newKey);
+        render();
+        generateAISummary(state.selectedResult);
+      } else {
+        alert("Please paste your Groq API key (starts with gsk_).");
+      }
+    } else if (action === "retry-ai") {
+      generateAISummary(state.selectedResult);
+    }
+  };
+  appEl.addEventListener("click", appClickHandler);
+}
+
+render();
+</script>
+</body>
+</html>
