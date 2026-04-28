@@ -145,9 +145,12 @@ function snLoad(callback) {
       try { qs = JSON.parse(r.u_questions || "[]"); } catch(e) {}
       var rawDate = r.sys_created_on || "";
       var formattedDate = "";
+      var timestamp = 0;
       if (rawDate) {
-        var d = new Date(rawDate);
-        formattedDate = d.toLocaleString("en-GB");
+        var normalized = rawDate.replace(" ", "T");
+        var parsed = new Date(normalized);
+        timestamp = parsed.getTime() || 0;
+        formattedDate = parsed.toLocaleString("en-GB");
       }
       return {
         id: r.sys_id,
@@ -159,6 +162,7 @@ function snLoad(callback) {
         total: parseInt(r.u_total, 10) || 0,
         passed: r.u_passed === "true" || r.u_passed === true,
         date: formattedDate,
+        timestamp: timestamp,
         answers: ans,
         questions: qs
       };
@@ -791,13 +795,9 @@ function adminHTML() {
     return r.name.toLowerCase().indexOf(state.filterName.toLowerCase()) !== -1;
   });
   if (state.filterSort === "newest") {
-    filtered = filtered.slice().sort(function(a, b) {
-      return new Date(b.date) - new Date(a.date);
-    });
+    filtered = filtered.slice().sort(function(a, b) { return b.timestamp - a.timestamp; });
   } else if (state.filterSort === "oldest") {
-    filtered = filtered.slice().sort(function(a, b) {
-      return new Date(a.date) - new Date(b.date);
-    });
+    filtered = filtered.slice().sort(function(a, b) { return a.timestamp - b.timestamp; });
   } else if (state.filterSort === "name_asc") {
     filtered = filtered.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
   } else if (state.filterSort === "name_desc") {
