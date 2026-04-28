@@ -127,7 +127,7 @@ function snSave(entry) {
 }
 
 function snLoad(callback) {
-  var url = SN_URL + "?sysparm_limit=100&sysparm_order_by_desc=sys_created_at";
+  var url = SN_URL + "?sysparm_limit=100&sysparm_order_by_desc=sys_created_on&sysparm_fields=sys_id,sys_created_on,u_candidate_name,u_dob,u_role,u_score,u_correct,u_total,u_passed,u_answers,u_questions";
   fetch(url, {
     method: "GET",
     headers: {
@@ -143,6 +143,15 @@ function snLoad(callback) {
       var qs = [];
       try { ans = JSON.parse(r.u_answers || "{}"); } catch(e) {}
       try { qs = JSON.parse(r.u_questions || "[]"); } catch(e) {}
+      var rawDate = r.sys_created_on || "";
+      var formattedDate = "";
+      var timestamp = 0;
+      if (rawDate) {
+        var normalized = rawDate.replace(" ", "T");
+        var parsed = new Date(normalized);
+        timestamp = parsed.getTime() || 0;
+        formattedDate = parsed.toLocaleString("en-GB");
+      }
       return {
         id: r.sys_id,
         name: r.u_candidate_name || "",
@@ -152,7 +161,8 @@ function snLoad(callback) {
         correct: parseInt(r.u_correct, 10) || 0,
         total: parseInt(r.u_total, 10) || 0,
         passed: r.u_passed === "true" || r.u_passed === true,
-        date: r.u_date || "",
+        date: formattedDate,
+        timestamp: timestamp,
         answers: ans,
         questions: qs
       };
@@ -691,7 +701,7 @@ function welcomeHTML() {
     '<div class="inner"><div class="card">' +
     '<div class="hint">Fill in all required fields and select your role before starting.</div>' +
     '<label class="field-label">Full name <span style="color:#c0392b">*</span></label>' +
-    '<input type="text" id="inp-name" placeholder="e.g. Sarah Ahmed" value="' + state.name + '" class="' + (e.name ? 'err-border' : '') + '"/>' +
+    '<input type="text" id="inp-name" placeholder="e.g. Abel Tuter" value="' + state.name + '" class="' + (e.name ? 'err-border' : '') + '"/>' +
     (e.name ? '<p class="err-msg">&#9888; ' + e.name + '</p>' : '') +
     '<div class="field">' +
     '<label class="field-label">Date of birth <span style="color:#c0392b">*</span></label>' +
@@ -785,9 +795,9 @@ function adminHTML() {
     return r.name.toLowerCase().indexOf(state.filterName.toLowerCase()) !== -1;
   });
   if (state.filterSort === "newest") {
-    filtered = filtered.slice().sort(function(a, b) { return b.id > a.id ? 1 : -1; });
+    filtered = filtered.slice().sort(function(a, b) { return b.timestamp - a.timestamp; });
   } else if (state.filterSort === "oldest") {
-    filtered = filtered.slice().sort(function(a, b) { return a.id > b.id ? 1 : -1; });
+    filtered = filtered.slice().sort(function(a, b) { return a.timestamp - b.timestamp; });
   } else if (state.filterSort === "name_asc") {
     filtered = filtered.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
   } else if (state.filterSort === "name_desc") {
