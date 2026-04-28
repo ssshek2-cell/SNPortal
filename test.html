@@ -791,9 +791,13 @@ function adminHTML() {
     return r.name.toLowerCase().indexOf(state.filterName.toLowerCase()) !== -1;
   });
   if (state.filterSort === "newest") {
-    filtered = filtered.slice().sort(function(a, b) { return b.id > a.id ? 1 : -1; });
+    filtered = filtered.slice().sort(function(a, b) {
+      return new Date(b.date) - new Date(a.date);
+    });
   } else if (state.filterSort === "oldest") {
-    filtered = filtered.slice().sort(function(a, b) { return a.id > b.id ? 1 : -1; });
+    filtered = filtered.slice().sort(function(a, b) {
+      return new Date(a.date) - new Date(b.date);
+    });
   } else if (state.filterSort === "name_asc") {
     filtered = filtered.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
   } else if (state.filterSort === "name_desc") {
