@@ -127,7 +127,7 @@ function snSave(entry) {
 }
 
 function snLoad(callback) {
-  var url = SN_URL + "?sysparm_limit=100&sysparm_order_by_desc=sys_created_at";
+  var url = SN_URL + "?sysparm_limit=100&sysparm_order_by_desc=sys_created_on&sysparm_fields=sys_id,sys_created_on,u_candidate_name,u_dob,u_role,u_score,u_correct,u_total,u_passed,u_answers,u_questions";
   fetch(url, {
     method: "GET",
     headers: {
@@ -143,6 +143,12 @@ function snLoad(callback) {
       var qs = [];
       try { ans = JSON.parse(r.u_answers || "{}"); } catch(e) {}
       try { qs = JSON.parse(r.u_questions || "[]"); } catch(e) {}
+      var rawDate = r.sys_created_on || "";
+      var formattedDate = "";
+      if (rawDate) {
+        var d = new Date(rawDate);
+        formattedDate = d.toLocaleString("en-GB");
+      }
       return {
         id: r.sys_id,
         name: r.u_candidate_name || "",
@@ -152,7 +158,7 @@ function snLoad(callback) {
         correct: parseInt(r.u_correct, 10) || 0,
         total: parseInt(r.u_total, 10) || 0,
         passed: r.u_passed === "true" || r.u_passed === true,
-        date: r.u_date || "",
+        date: formattedDate,
         answers: ans,
         questions: qs
       };
