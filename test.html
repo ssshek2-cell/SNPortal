@@ -630,7 +630,18 @@ function parseSummary(text) {
   return { overall: overall, strengths: strengths, improve: improve };
 }
 
-function aiPanelHTML() {
+function formatQuestion(q) {
+  var parts = q.split("\n\n");
+  if (parts.length < 2) {
+    return '<p class="q-text">' + q + '</p>';
+  }
+  var questionText = parts[0];
+  var codeBlock = parts.slice(1).join("\n\n");
+  return '<p class="q-text">' + questionText + '</p>' +
+    '<pre style="background:#1e2a3a;color:#81d742;padding:12px 14px;border-radius:6px;font-size:12px;line-height:1.6;overflow-x:auto;margin-bottom:14px;font-family:monospace;">' +
+    codeBlock.replace(/</g,"&lt;").replace(/>/g,"&gt;") +
+    '</pre>';
+}
   var hdr = '<div class="ai-panel-header">' +
     '<span style="font-size:16px;">&#129302;</span>' +
     '<span style="font-size:14px;font-weight:600;color:#1a2b3c;">AI Performance Summary</span>' +
@@ -750,7 +761,7 @@ function testHTML() {
       '<span style="font-size:11px;font-weight:600;color:#6b7a8d;text-transform:uppercase;letter-spacing:.8px;">Question ' + (idx + 1) + ' of ' + total + '</span>' +
       topicTag(q.topic) +
       '</div>' +
-      '<p class="q-text">' + q.q + '</p>' + opts +
+      formatQuestion(q.q) + opts +
       '</div>';
   }).join("");
   return navbarHTML() +
@@ -922,8 +933,8 @@ function adminDetailHTML(r) {
     }).join("");
     return '<div class="q-detail-card" style="border-left-color:' + (correct ? '#00875a' : '#c0392b') + ';margin-bottom:10px;">' +
       '<div class="q-detail-header">' +
-      '<p style="font-size:14px;font-weight:600;color:#1a2b3c;line-height:1.5;flex:1;margin:0;">Q' + (i + 1) + ': ' + q.q + '</p>' +
-      topicTag(q.topic) +
+        formatQuestion(q.q) +
+        topicTag(q.topic) +
       '</div>' + opts +
       '</div>';
   }).join("");
